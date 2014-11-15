@@ -12,12 +12,11 @@ Npm.depends({
 Package.onUse(function(api) {
   api.versionsFrom('1.0');
   api.use([
+    'mongo'
   ]);
   api.addFiles([
-    'liveSelect.js'
+    'syncMySQLSelect.js'
   ], 'server');
-  api.export('pollUpdateTable', 'server');
-  api.export('liveSelect', 'server');
 });
 
 Package.onTest(function(api) {

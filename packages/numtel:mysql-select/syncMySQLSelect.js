@@ -6,16 +6,16 @@ var mysql = Npm.require('mysql');
 var latestUpdate = 0;
 var tableIds = {};
 
-pollUpdateTable = function(connection){
+var pollUpdateTable = function(conn){
   var fut = new Future();
-  var latestInt = 0;
-  connection.query(
+  conn.query(
     'select * from updates where `last_update` > "' + latestUpdate + '"',
     function(error, rows, fields){
       if(error) return fut['throw'](error);
       var tableNames = [];
+      var latestInt = 0;
       rows && rows.forEach(function(row){
-        var rowTimestamp = new Date(row.last_update).getTime() / 1000;
+        var rowTimestamp = new Date(row.last_update).getTime();
         if(rowTimestamp > latestInt){
           latestUpdate = row.last_update;
           latestInt = rowTimestamp;
@@ -29,5 +29,7 @@ pollUpdateTable = function(connection){
 };
 
 // Syncronize a collection's documents with the rows from a select query
-liveSelect = function(collection, connection, query, triggers){
+// Update automatically when specified trigger tables update
+Mongo.Collection.prototype.syncMySQLSelect = function(conn, query, triggers){
+  console.log(pollUpdateTable(conn));
 };
