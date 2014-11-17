@@ -18,6 +18,7 @@ Package.onUse(function(api) {
     'syncMysqlSelect.js',
     'initTriggers.js'
   ], 'server');
+  api.export('mysql', 'server'); // node-mysql
   api.export('mysqlInitTriggers', 'server');
 });
 

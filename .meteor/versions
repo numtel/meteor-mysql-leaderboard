@@ -35,7 +35,6 @@ mongo@1.0.8
 numtel:mysql-select@1.0.0
 observe-sequence@1.0.3
 ordered-dict@1.0.1
-pcel:mysql@0.1.0
 random@1.0.1
 reactive-dict@1.0.4
 reactive-var@1.0.3

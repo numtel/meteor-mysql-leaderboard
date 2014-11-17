@@ -42,12 +42,37 @@ if (Meteor.isServer) {
       password: 'numtel',
       database: 'meteor'
     };
-    var mysqlConn = mysql.createConnection(mysqlSettings);
-    mysqlConn.connect();
+    var db = mysql.createConnection(mysqlSettings);
+    db.connect();
 
-    mysqlInitTriggers(mysqlConn, 'updates', ['players'], true);
+    mysqlInitTriggers(
+      db, // connection from node-mysql (included in package)
+      'updates3', // update trigger table name
+      [ // describe triggers to initialize
+        'players', // the simplest trigger is a string, queries will be
+                   // refreshed when any row on the table changes
+        { // complex triggers
+          table: 'players', // table name to hook (required)
+          key: 'myfeed', // specify a key to trigger live-selects (optional)
+                         // default: table name
+          condition: '$ROW.name = "dude"' // Conditional terms (optional)
+                                          // Not escaped by library, be careful
+                                          // Access new row on insert,
+                                          // old row on update/delete using
+                                          // $ROW symbol
+        }
+      ],
+      true // force out any triggers currently in place
+           // if false, an error will be thrown if competing trigger exists
+    );
     
-    Players.syncMysqlSelect(mysqlConn, 'select * from players', ['players'], 'updates', 'id');
+    Players.syncMysqlSelect(
+      db, // connection from node-mysql (included in package)
+      'select * from players', // any select query
+      ['players'], // update triggers to refresh query
+      'updates3', // update trigger table name
+      'id' // field for collection _id
+    );
 
   });
 }
