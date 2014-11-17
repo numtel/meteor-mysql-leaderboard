@@ -15,8 +15,10 @@ Package.onUse(function(api) {
     'mongo'
   ]);
   api.addFiles([
-    'syncMySQLSelect.js'
+    'syncMysqlSelect.js',
+    'initTriggers.js'
   ], 'server');
+  api.export('mysqlInitTriggers', 'server');
 });
 
 Package.onTest(function(api) {

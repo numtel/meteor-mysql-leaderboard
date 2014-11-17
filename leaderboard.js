@@ -44,8 +44,10 @@ if (Meteor.isServer) {
     };
     var mysqlConn = mysql.createConnection(mysqlSettings);
     mysqlConn.connect();
+
+    mysqlInitTriggers(mysqlConn, 'updates', ['players'], true);
     
-    Players.syncMySQLSelect(mysqlConn, 'select * from players', ['players']);
+    Players.syncMysqlSelect(mysqlConn, 'select * from players', ['players'], 'updates', 'id');
 
   });
 }
