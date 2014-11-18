@@ -49,7 +49,7 @@ if (Meteor.isServer) {
     host: 'localhost',
     user: 'root',
     password: 'numtel',
-    database: 'meteor'
+    database: 'leaderboard'
   };
 
   Meteor.startup(function () {
@@ -61,7 +61,7 @@ if (Meteor.isServer) {
       // connection from node-mysql (included in package)
       db,
       // update trigger table name
-      'updates3',
+      'updates',
       // describe triggers to initialize
       [ 
         // the simplest trigger is a string, queries will be
@@ -88,9 +88,9 @@ if (Meteor.isServer) {
     );
     
     // Link the collection
-    Players.syncMysqlSelect(
+    Players.mysqlSyncSelect(
       db, // connection from node-mysql (included)
-      'updates3', // update trigger table name
+      'updates', // update trigger table name
       ['players'], // update triggers to refresh query
       'select * from players', // any select query
       'id' // field for collection _id

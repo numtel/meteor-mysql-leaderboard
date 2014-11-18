@@ -15,7 +15,7 @@ var Future = Npm.require('fibers/future');
 // @param {[string]} triggers - update key names to refresh query on change
 // @param {string} query - select statement
 // @param {string} idField - field name to use as mongo doc _id
-Mongo.Collection.prototype.syncMysqlSelect =
+Mongo.Collection.prototype.mysqlSyncSelect =
     function(conn, updateTable, triggers, query, idField){
   var self = this;
   // Arguments for updateCollection()
