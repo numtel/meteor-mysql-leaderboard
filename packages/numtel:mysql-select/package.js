@@ -1,6 +1,6 @@
 Package.describe({
   name: 'numtel:mysql-select',
-  summary: ' /* Fill me in! */ ',
+  summary: 'Reactively bind MySQL Select statements to Mongo Collections',
   version: '1.0.0',
   git: ' /* Fill me in! */ '
 });
@@ -15,10 +15,12 @@ Package.onUse(function(api) {
     'mongo'
   ]);
   api.addFiles([
-    'syncMysqlSelect.js',
-    'initTriggers.js'
+    'mysqlQueryEx.js',
+    'mysqlInitTriggers.js',
+    'syncMysqlSelect.js'
   ], 'server');
   api.export('mysql', 'server'); // node-mysql
+  api.export('mysqlQueryEx', 'server');
   api.export('mysqlInitTriggers', 'server');
 });
 

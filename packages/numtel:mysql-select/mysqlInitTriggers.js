@@ -1,9 +1,8 @@
 'use strict';
+// numtel:mysql-select
+// MIT License, ben@latenightsketches.com
+
 var TRIGGER_EVENTS = ['INSERT', 'UPDATE', 'DELETE'];
-
-var Future = Npm.require('fibers/future');
-var bindEnv = Meteor.bindEnvironment;
-
 var buffer = []; // initialized trigger meta data
 
 // @param {object} conn - node-mysql connection
@@ -111,7 +110,7 @@ var triggerName = function(tableName, event){
 
 var createTrigger = function(conn, tableName, body, event){
   var rowRef = event === 'INSERT' ? 'NEW' : 'OLD';
-  return queryEx(conn, function(esc, escId){
+  return mysqlQueryEx(conn, function(esc, escId){
     return [
       'CREATE TRIGGER ' + escId(triggerName(tableName, event)),
       'AFTER ' + event + ' ON ' + escId(tableName),
@@ -124,7 +123,7 @@ var createTrigger = function(conn, tableName, body, event){
 };
 
 var removeTriggers = function(conn, tables){
-  var result = queryEx(conn, 'show triggers;');
+  var result = mysqlQueryEx(conn, 'show triggers;');
   result.forEach(function(row){
     if(tables.indexOf(row.Table) > -1 && row.Timing === 'AFTER'){
       removeTrigger(conn, row.Trigger);
@@ -133,13 +132,13 @@ var removeTriggers = function(conn, tables){
 };
 
 var removeTrigger = function(conn, name){
-  return queryEx(conn, function(esc, escId){
+  return mysqlQueryEx(conn, function(esc, escId){
     return 'drop trigger ' + escId(name) + ';';
   });
 };
 
 var getUpdateKeys = function(conn, updateTable){
-  var result = queryEx(conn, function(esc, escId){
+  var result = mysqlQueryEx(conn, function(esc, escId){
     return 'select `id`, `key` from ' + escId(updateTable) + ';';
   });
   var out = {};
@@ -150,7 +149,7 @@ var getUpdateKeys = function(conn, updateTable){
 };
 
 var createUpdateTable = function(conn, updateTable){
-  return queryEx(conn, function(esc, escId){
+  return mysqlQueryEx(conn, function(esc, escId){
     return [
       'CREATE TABLE IF NOT EXISTS' + escId(updateTable) + ' (',
         '`id` int(11) NOT NULL AUTO_INCREMENT,',
@@ -164,26 +163,10 @@ var createUpdateTable = function(conn, updateTable){
 };
 
 var createUpdateKey = function(conn, updateTable, key){
-  return queryEx(conn, function(esc, escId){
+  return mysqlQueryEx(conn, function(esc, escId){
     return [
       'INSERT INTO ' + escId(updateTable) + ' (`key`) ',
       'VALUES (' + esc(key) + ')'
     ].join('\n');
   });
-};
-
-// Perform a query synchronously
-// @param {string|function} query - optional function(escape, escapeId){...}
-var queryEx = function(conn, query){
-  var fut = new Future();
-  var escId = conn.escapeId;
-  var esc = conn.escape.bind(conn);
-  if(typeof query === 'function'){
-    query = query(esc, escId);
-  };
-  conn.query(query, bindEnv(function(error, rows, fields){
-    if(error) return fut['throw'](error);
-    fut['return'](rows);
-  }));
-  return fut.wait();
 };
