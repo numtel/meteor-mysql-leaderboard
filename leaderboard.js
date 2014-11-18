@@ -15,9 +15,18 @@ if (Meteor.isClient) {
     }
   });
 
+  // Provide an instantaneous client side expectation of Meteor method
+  methodExp({
+    'incScore': function(id){
+      var _id = Players.findOne({ id: id })._id;
+      Players.update(_id, { $inc: { score: 5 } });
+    }
+  });
+
   Template.leaderboard.events({
     'click .inc': function () {
-      Meteor.call('incScore', Session.get("selectedPlayer"));
+      // Call expectation enhanced method
+      callExp('incScore', Session.get("selectedPlayer"));
     }
   });
 
