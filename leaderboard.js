@@ -1,32 +1,54 @@
-// Set up a collection to contain player information. On the server,
-// it is backed by a MongoDB collection named "players"
-// and synced with MySQL query: "select * from players;"
+// Data is read from select statements published by server
+players = new MysqlSubscribe('allPlayers');
+myScore = new MysqlSubscribe('playerScore', 'Maxwell');
 
-Players = new Mongo.Collection("players");
+// myScore.on('update', function(index, msg){
+//   console.log(msg.fields.score);
+// });
 
 if (Meteor.isClient) {
-  Template.leaderboard.helpers({
-    players: function () {
-      return Players.find({}, { sort: { score: -1, name: 1 } });
-    },
-    selectedName: function () {
-      var player = Players.findOne({id: Session.get("selectedPlayer")});
-      return player && player.name;
-    }
-  });
 
   // Provide an instantaneous client side expectation of Meteor method
   methodExp({
-    'incScore': function(id){
-      var _id = Players.findOne({ id: id })._id;
-      Players.update(_id, { $inc: { score: 5 } });
+    'incScore': function(id, amount){
+      var originalIndex;
+      players.forEach(function(player, index){
+        if(player.id === id){
+          originalIndex = index;
+          players[index].score += amount;
+          players.dep.changed();
+        }
+      });
+
+      // Reverse changes if needed (due to resorting) on update
+      var updateHandler = function(index, msg){
+        if(originalIndex !== index){
+          players[originalIndex].score -= amount;
+        }
+        players.removeHandler('update', updateHandler);
+      };
+      players.on('update', updateHandler);
+    }
+  });
+
+  Template.leaderboard.helpers({
+    players: function () {
+      players.dep.depend();
+      return players;
+    },
+    selectedName: function () {
+      players.dep.depend();
+      var player = players.filter(function(player){
+        return player.id === Session.get("selectedPlayer");
+      });
+      return player.length && player[0].name;
     }
   });
 
   Template.leaderboard.events({
     'click .inc': function () {
       // Call expectation enhanced method
-      callExp('incScore', Session.get("selectedPlayer"));
+      callExp('incScore', Session.get("selectedPlayer"), 5);
     }
   });
 
@@ -55,54 +77,41 @@ if (Meteor.isServer) {
   Meteor.startup(function () {
     db = mysql.createConnection(mysqlSettings);
     db.connect();
+    db.initUpdateTable('updates8');
 
-    // Create table to hold updates and create triggers on specified tables
-    mysqlInitTriggers(
-      // connection from node-mysql (included in package)
-      db,
-      // update trigger table name
-      'updates',
-      // describe triggers to initialize
-      [ 
-        // the simplest trigger is a string, queries will be
-        // refreshed when any row on the table changes
-        'players',
-        // complex trigger example:
-        {
-          // table name to hook (required)
-          table: 'players', 
-          // specify a key to trigger live-selects (optional)
-          // default: table name
-          key: 'myfeed',
-          // Conditional terms (optional)
-          // Not escaped, be careful. (or escape yourself!)
-          // Access new row on insert,
-          // old row on update/delete using
-          // $ROW symbol
-          condition: '$ROW.name = "dude" or $ROW.score > 200'
-        }
-      ],
-      // force out any triggers currently in place
-      // if false, an error will be thrown if competing trigger exists
-      true
-    );
-    
-    // Link the collection
-    Players.mysqlSyncSelect(
-      db, // connection from node-mysql (included)
-      'updates', // update trigger table name
-      ['players'], // update triggers to refresh query
-      'select * from players', // any select query
-      'id' // field for collection _id
-    );
+    Meteor.publish('allPlayers', function(){
+      db.select(this, {
+        query: 'select * from players order by score desc',
+        triggers: [
+          { table: 'players' }
+        ]
+      });
+    });
 
+    Meteor.publish('playerScore', function(name){
+      db.select(this, {
+        query: function(esc, escId){
+          return 'select `score` from `players` where `name`=' + esc(name);
+        },
+        triggers: [
+          {
+            table: 'players',
+            condition: function(esc, escId){
+              return '$ROW.name = ' + esc(name);
+            }
+          }
+        ]
+      });
+    });
   });
 
   Meteor.methods({
-    'incScore': function(id){
-      // Synchronous query method with support for escaping values
-      return mysqlQueryEx(db, function(esc, escId){
-        return 'update players set `score`=`score` + 5 where `id`=' + esc(id);
+    'incScore': function(id, amount){
+      // Synchronous query method with support for escaping values by passing
+      // function instead of string query
+      return db.queryEx(function(esc, escId){
+        return 'update players set `score`=`score` + ' + esc(amount) +
+                  ' where `id`=' + esc(id);
       });
     }
   });

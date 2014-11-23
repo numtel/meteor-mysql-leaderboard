@@ -1,15 +1,7 @@
 {
   "dependencies": [
     [
-      "application-configuration",
-      "1.0.3"
-    ],
-    [
       "base64",
-      "1.0.1"
-    ],
-    [
-      "binary-heap",
       "1.0.1"
     ],
     [
@@ -27,10 +19,6 @@
     [
       "ejson",
       "1.0.4"
-    ],
-    [
-      "follower-livedata",
-      "1.0.2"
     ],
     [
       "geojson-utils",
@@ -55,10 +43,6 @@
     [
       "minimongo",
       "1.0.5"
-    ],
-    [
-      "mongo",
-      "1.0.8"
     ],
     [
       "ordered-dict",

@@ -18,6 +18,7 @@ methodExp = function(methods){
 
 callExp = function(name /* arguments, ... , callback */){
   var def = methodBuffer[name];
+  var callbackCtx = {};
   if(!def) throw new Error('invalid-method-expecation ' + name);
   var onCall = typeof def === 'function' ? def : def.onCall;
   var onData = typeof def === 'function' ? undefined : def.onData;
@@ -27,9 +28,9 @@ callExp = function(name /* arguments, ... , callback */){
     Array.prototype.push.call(arguments, callback);
     callback = undefined;
   };
-  onCall && onCall.apply(null, arguments);
+  onCall && onCall.apply(callbackCtx, arguments);
   var callbackWrapper = function(error, result){
-    onData && onData.apply(this, arguments);
+    onData && onData.apply(callbackCtx, arguments);
     callback && callback.apply(this, arguments);
   };
   return Meteor.apply(name, arguments, callbackWrapper);

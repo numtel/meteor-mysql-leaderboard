@@ -14,8 +14,8 @@ Explorations show that in Postgres, functions accessing external resources may b
 
 This example has spawned 2 experimental packages to streamline MySQL integration:
 
-* [mysql-select](https://github.com/numtel/meteor-mysql-testing/tree/master/packages/numtel:mysql-select) - Synchronize a Mongo Collection with a MySQL Select statement
-* [method-expectations](https://github.com/numtel/meteor-mysql-testing/tree/master/packages/numtel:method-expectations) - Provide instantaneous feedback for `Meteor.methods()`.
+* [numtel:mysql](https://github.com/numtel/meteor-mysql) - MySQL support with reactive Select statements
+* [numtel:method-expectations](https://github.com/numtel/meteor-mysql-testing/tree/master/packages/numtel:method-expectations) - Provide instantaneous feedback for `Meteor.methods()`.
 
 ## Quick start
 
