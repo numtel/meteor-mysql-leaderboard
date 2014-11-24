@@ -1,7 +1,5 @@
 # MySQL Leaderboard Example
 
-*Exploring reactive Meteor MySQL integration...*
-
 In MySQL, triggers can not call the external environment without a UDF (user
 defined function) that must be compiled for the individual machine.
 
@@ -12,10 +10,10 @@ Explorations show that in Postgres, functions accessing external resources may b
 
 ## New packages
 
-This example has spawned 2 experimental packages to streamline MySQL integration:
+This example uses 2 packages to streamline MySQL integration:
 
 * [numtel:mysql](https://github.com/numtel/meteor-mysql) - MySQL support with reactive Select statements
-* [numtel:method-expectations](https://github.com/numtel/meteor-mysql-testing/tree/master/packages/numtel:method-expectations) - Provide instantaneous feedback for `Meteor.methods()`.
+* [numtel:method-expectations](https://github.com/numtel/meteor-method-expectations) - Provide instantaneous feedback for `Meteor.methods()`.
 
 ## Quick start
 

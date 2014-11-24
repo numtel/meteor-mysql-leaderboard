@@ -6,6 +6,6 @@
 autopublish
 insecure
 meteor-platform
-numtel:mysql-select
+numtel:mysql
 numtel:method-expectations
 
