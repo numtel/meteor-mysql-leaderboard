@@ -2,9 +2,9 @@
 players = new MysqlSubscribe('allPlayers');
 myScore = new MysqlSubscribe('playerScore', 'Maxwell');
 
-// myScore.on('update', function(index, msg){
-//   console.log(msg.fields.score);
-// });
+myScore.on('update', function(index, msg){
+  console.log(msg.fields.score);
+});
 
 if (Meteor.isClient) {
 
