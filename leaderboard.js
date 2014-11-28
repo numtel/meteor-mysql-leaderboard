@@ -8,8 +8,8 @@ myScore.on('update', function(index, msg){
 
 if (Meteor.isClient) {
 
-  // Provide an instantaneous client side expectation of Meteor method
-  methodExp({
+  // Provide a client side stub
+  Meteor.methods({
     'incScore': function(id, amount){
       var originalIndex;
       players.forEach(function(player, index){
@@ -47,8 +47,7 @@ if (Meteor.isClient) {
 
   Template.leaderboard.events({
     'click .inc': function () {
-      // Call expectation enhanced method
-      callExp('incScore', Session.get("selectedPlayer"), 5);
+      Meteor.call('incScore', Session.get("selectedPlayer"), 5);
     }
   });
 
