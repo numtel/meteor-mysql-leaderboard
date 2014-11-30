@@ -1,8 +1,8 @@
 // Data is read from select statements published by server
-players = new MysqlSubscribe('allPlayers');
-myScore = new MysqlSubscribe('playerScore', 'Maxwell');
+players = new MysqlSubscription('allPlayers');
+myScore = new MysqlSubscription('playerScore', 'Maxwell');
 
-myScore.on('update', function(index, msg){
+myScore.addEventListener('update', function(index, msg){
   console.log(msg.fields.score);
 });
 
@@ -16,28 +16,26 @@ if (Meteor.isClient) {
         if(player.id === id){
           originalIndex = index;
           players[index].score += amount;
-          players.dep.changed();
+          players.changed();
         }
       });
 
       // Reverse changes if needed (due to resorting) on update
-      var updateHandler = function(index, msg){
+      players.addEventListener('update.incScoreStub', function(index, msg){
         if(originalIndex !== index){
           players[originalIndex].score -= amount;
         }
-        players.removeHandler('update', updateHandler);
-      };
-      players.on('update', updateHandler);
+        players.removeEventListener('update.incScoreStub');
+      });
     }
   });
 
   Template.leaderboard.helpers({
     players: function () {
-      players.dep.depend();
-      return players;
+      return players.reactive();
     },
     selectedName: function () {
-      players.dep.depend();
+      players.depend();
       var player = players.filter(function(player){
         return player.id === Session.get("selectedPlayer");
       });
