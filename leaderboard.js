@@ -74,7 +74,7 @@ if (Meteor.isServer) {
   Meteor.startup(function () {
     db = mysql.createConnection(mysqlSettings);
     db.connect();
-    db.initUpdateTable('updates17');
+    db.initUpdateTable('updates19');
 
     Meteor.publish('allPlayers', function(){
       db.select(this, {
