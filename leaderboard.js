@@ -63,53 +63,42 @@ if (Meteor.isClient) {
 }
 
 if (Meteor.isServer) {
-  var db;
-  var mysqlSettings = {
+  var liveDb = new LiveMysql({
     host: 'localhost',
     user: 'root',
     password: 'numtel',
     database: 'leaderboard'
-  };
+  });
 
-  Meteor.startup(function () {
-    db = mysql.createConnection(mysqlSettings);
-    db.connect();
-    db.initUpdateTable('updates22');
+  Meteor.publish('allPlayers', function(){
+    return liveDb.select(
+      'SELECT * FROM players ORDER BY score DESC',
+      [ { table: 'players' } ]
+    );
+  });
 
-    Meteor.publish('allPlayers', function(){
-      db.select(this, {
-        query: 'select * from players order by score desc',
-        triggers: [
-          { table: 'players' }
-        ]
-      });
-    });
-
-    Meteor.publish('playerScore', function(name){
-      db.select(this, {
-        query: function(esc, escId){
-          return 'select `score` from `players` where `name`=' + esc(name);
-        },
-        triggers: [
-          {
-            table: 'players',
-            condition: function(esc, escId){
-              return '$ROW.name = ' + esc(name);
-            }
+  Meteor.publish('playerScore', function(name){
+    return liveDb.select(
+      'SELECT id, score FROM players WHERE name = ' + liveDb.db.escape(name),
+      [
+        {
+          table: 'players',
+          condition: function(row, newRow){
+            return row.name === name;
           }
-        ]
-      });
-    });
+        }
+      ]
+    );
   });
 
   Meteor.methods({
     'incScore': function(id, amount){
-      // Synchronous query method with support for escaping values by passing
-      // function instead of string query
-      return db.queryEx(function(esc, escId){
-        return 'update players set `score`=`score` + ' + esc(amount) +
-                  ' where `id`=' + esc(id);
-      });
+      if(typeof id === 'number' && typeof amount === 'number'){
+        liveDb.db.query(
+          'UPDATE players SET score = score + ? WHERE id = ?',
+          [ amount, id ]
+        );
+      }
     }
   });
 }
