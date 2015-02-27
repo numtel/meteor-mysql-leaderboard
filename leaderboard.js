@@ -70,6 +70,15 @@ if (Meteor.isServer) {
     database: 'leaderboard'
   });
 
+  var closeAndExit = function() {
+    liveDb.end();
+    process.exit();
+  };
+  // Close connections on hot code push
+  process.on('SIGTERM', closeAndExit);
+  // Close connections on exit (ctrl + c)
+  process.on('SIGINT', closeAndExit);
+
   Meteor.publish('allPlayers', function(){
     return liveDb.select(
       'SELECT * FROM players ORDER BY score DESC',
