@@ -1,5 +1,5 @@
 // Data is read from select statements published by server
-players = new MysqlSubscription('allPlayers');
+players = new MysqlSubscription('allPlayers', 3);
 myScore = new MysqlSubscription('playerScore', 'Maxwell');
 
 myScore.addEventListener('update', function(index, msg){
@@ -46,6 +46,12 @@ if (Meteor.isClient) {
   Template.leaderboard.events({
     'click .inc': function () {
       Meteor.call('incScore', Session.get("selectedPlayer"), 5);
+    },
+    'click .load-more': function () {
+      players.change(6);
+    },
+    'click .load-fewer': function () {
+      players.change(3);
     }
   });
 
@@ -79,9 +85,10 @@ if (Meteor.isServer) {
   // Close connections on exit (ctrl + c)
   process.on('SIGINT', closeAndExit);
 
-  Meteor.publish('allPlayers', function(){
+  Meteor.publish('allPlayers', function(limit){
     return liveDb.select(
-      'SELECT * FROM players ORDER BY score DESC',
+      'SELECT * FROM players ORDER BY score DESC' +
+        (limit ? ' LIMIT ' + liveDb.db.escape(limit) : ''),
       [ { table: 'players' } ]
     );
   });

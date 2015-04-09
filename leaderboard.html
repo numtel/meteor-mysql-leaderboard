@@ -14,6 +14,10 @@
 </body>
 
 <template name="leaderboard">
+  <div class="subtitle">
+    <a href="javascript:" class="load-more">Load up to 6 scientists</a><br />
+    <a href="javascript:" class="load-fewer">Load up to 3 scientists</a>
+  </div>
   <ol class="leaderboard">
     {{#each players}}
       {{> player}}
