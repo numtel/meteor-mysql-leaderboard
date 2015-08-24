@@ -4,4 +4,4 @@
 # but you can also edit it by hand.
 
 meteor-platform
-numtel:mysql
+numtel:mysql@1.0.2
