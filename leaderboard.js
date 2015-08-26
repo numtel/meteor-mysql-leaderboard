@@ -59,8 +59,11 @@ if (Meteor.isClient) {
 if (Meteor.isServer) {
   var liveDb = new LiveMysql({
     host: 'localhost',
+    // Port 3407 as specified in leaderboard.mysql.json
+    // If using external MySQL server, the default port is 3306
+    port: 3407,
     user: 'root',
-    password: 'numtel',
+    password: '',
     database: 'leaderboard'
   });
 

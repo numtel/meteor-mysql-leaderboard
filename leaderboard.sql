@@ -1,3 +1,5 @@
+CREATE DATABASE `leaderboard`;
+USE `leaderboard`;
 
 CREATE TABLE `players` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
